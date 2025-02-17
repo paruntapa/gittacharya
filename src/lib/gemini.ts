@@ -1,7 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"; 
 import { Document } from "@langchain/core/documents";
 import dotenv from 'dotenv';
-import { text } from "stream/consumers";
 dotenv.config();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -44,7 +43,7 @@ export const aiSummariseCommit = async (diff: string) => {
         'Please summarize the following diff file: \n\n${diff}',
         `        
     ])
-
+    console.log("response from gemini", response)
     return response.response.text();
 }
 
@@ -79,3 +78,4 @@ export const generateEmbedding = async (summary: string) =>{
     const embedding = result.embedding
     return embedding.values
 }
+

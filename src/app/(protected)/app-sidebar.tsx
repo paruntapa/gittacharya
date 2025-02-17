@@ -6,7 +6,7 @@ import useProject from "@/hooks/use-project"
 import { Bot, CreditCard, LayoutDashboard, Plus, Presentation } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { redirect, usePathname, useRouter } from "next/navigation"
 
 const items = [
   {
@@ -32,6 +32,7 @@ const items = [
 ]
 
 export const AppSidebar = ( ) => {
+    const router = useRouter()
     const pathname = usePathname()
     const {open} = useSidebar()
     const {projects, projectId, setProjectId} = useProject()
@@ -80,6 +81,7 @@ export const AppSidebar = ( ) => {
                             return (
                                 <SidebarMenuItem key={project.name} >
                                     <SidebarMenuButton asChild >
+                                        
                                         <div onClick={()=>{
                                             setProjectId(project.id)
                                         }}>

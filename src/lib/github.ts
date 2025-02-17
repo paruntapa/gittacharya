@@ -2,10 +2,10 @@ import { db } from "@/server/db"
 import { Octokit } from "octokit"
 import axios from 'axios'
 import { aiSummariseCommit } from "./gemini"
+
 export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 })
-
 const githubUrl = 'https://api.github.com/docker/genai-stack'
 
 type Response ={
@@ -15,6 +15,8 @@ type Response ={
     commitAuthorAvatar: string
     commitDate: string
 }
+
+//take out commitHashes
 export const getCommitHashes = async (githubUrl: string): Promise<Response[]> => {
     const [owner, repo] = githubUrl.split('/').slice(-2)
     if(!owner || !repo) throw new Error('Invalid github url')
@@ -37,6 +39,7 @@ export const getCommitHashes = async (githubUrl: string): Promise<Response[]> =>
 export const pollCommits = async (projectId: string) => {
     const {project, githubUrl} = await fetchProjectGithubUrl(projectId)
     const commitHashes = await getCommitHashes(githubUrl)
+    console.log("commitHahessssssss: ",commitHashes)
     const unprocessedCommits = await filterUnprocessedCommits(projectId, commitHashes)
     console.log(unprocessedCommits)
 
@@ -44,13 +47,15 @@ export const pollCommits = async (projectId: string) => {
         return summariesCommit(githubUrl, commit.commitHash)
     })) 
     const summarises = summaryResponses.map((response) => {
+    console.log("summaryResponses",response)
+
         if(response.status === 'fulfilled') {
             return response.value as string
         }
         return ""
         
     })
-
+    console.log("summariressssss",summarises)
     const commits = await db.commit.createMany({
         data: summarises.map((summary, index) => {
             console.log(`processing commit ${index}`)
@@ -70,17 +75,18 @@ export const pollCommits = async (projectId: string) => {
 
 }
 
+// Coming from  Gemini AI
 async function summariesCommit(githubUrl: string, commitHash: string) {
     // get the diff, then pass the diff into AI
     const {data} = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
         headers:{
-            Accept: 'application/vnd.github.v3.diff'
+            Accept: 'application/vnd.github.v3.diff',
         }
     })
-    console.log(data)
-    return await aiSummariseCommit(data) || ""
+    return await aiSummariseCommit(data) 
 }
 
+// To get github URL
 async function fetchProjectGithubUrl(projectId: string) {
        const project = await db.project.findUnique({
         where: {id: projectId},
@@ -89,7 +95,7 @@ async function fetchProjectGithubUrl(projectId: string) {
        if(!project?.githubUrl) throw new Error('Project has no github url')
        return {project, githubUrl: project?.githubUrl}
 }
-
+// filter out commits that have already been processed
 async function filterUnprocessedCommits(projectId: string, commitHashes: Response[]) {
     const processedCommits = await db.commit.findMany({
         where: {projectId: projectId},

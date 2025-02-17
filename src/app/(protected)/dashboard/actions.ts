@@ -24,12 +24,14 @@ export async function askQuestion(question: string, projectId: string) {
     AND "projectId" = ${projectId}
     ORDER BY similarity DESC
     LIMIT 10
-    ` as { fileName: string, sourceCode: string, summary: string }[]
+    ` as { fileName: string; sourceCode: string; summary: string }[]
 
     let context = ''
 
     for (const doc of result) {
         context += `source: ${doc.fileName}\ncode content: ${doc.sourceCode}\n summary of file: ${doc.summary}\n\n`
+    console.log(context)
+
     }
 
     (async ()=> {
@@ -40,7 +42,7 @@ export async function askQuestion(question: string, projectId: string) {
             artificial intelligence.
             The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
             AI is a well-behaved and well-mannered individula.
-            AI is always friendly, kind and ispiring, and he is eager to provide vivid and thoughful responses to the user.
+            AI is always friendly, kind and ispiring, and he is eager to provide vivid and thoughtful responses to the user.
             AI has the sum of all knowledge in their brain, and is able to accurately answer nearly any question about any topic in coding field.
             START CONTEXT BLOCK
             ${context}
@@ -49,8 +51,8 @@ export async function askQuestion(question: string, projectId: string) {
             START QUESTION
             ${question}
             END OF QUESTION
-            AI assistant will take into accoutn any CONTEXT BLOCK that is provided in a conversation.
-            If the context does not provide the answer to question, the AI assistant will say, "U'm sorry, but I don't know the answer to that question."
+            AI assistant will take into account any CONTEXT BLOCK that is provided in a conversation.
+            If the context does not provide the answer to question, the AI assistant will say, "I'm sorry, but I don't know the answer to that question."
             AI assistant will not apologize for previous responses, but instead will indicated new information was gained.
             AI assistant will not invent anyhting that is not drawn directly from the context.
             Answer in markdown syntax, with code snippets if needed. Be as detailed as possible when answering, make sure there is no ambiguity.
@@ -65,7 +67,7 @@ export async function askQuestion(question: string, projectId: string) {
     })()
 
     return {
-        output: stream,
+        output: stream.value,
         filesReferences: result
     }
 }
