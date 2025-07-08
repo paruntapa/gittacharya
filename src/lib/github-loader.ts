@@ -10,7 +10,6 @@ const getFileCount = async (path: string, octokit: Octokit, githubOwner: string,
         repo: githubRepo,
         path
     })
-
     //Base-Case
     if(!Array.isArray(data) && data.type === 'file') {
         return acc + 1
@@ -39,7 +38,7 @@ const getFileCount = async (path: string, octokit: Octokit, githubOwner: string,
 
 export const checkCredits = async (githubUrl: string, githubToken?: string) => {
     //find out how many files are in the repo
-    const octokit = new Octokit({ auth: githubToken})
+    const octokit = new Octokit({ auth: githubToken || process.env.GITHUB_TOKEN})
     const githubOwner = githubUrl.split('/')[3]
     const githubRepo = githubUrl.split('/')[4]
     if(!githubOwner || !githubRepo) {return 0}
@@ -51,7 +50,7 @@ export const checkCredits = async (githubUrl: string, githubToken?: string) => {
 
 export const loadGithubRepo = async (githubUrl: string, githubToken?: string) => {
     const loader = new GithubRepoLoader(githubUrl, {
-        accessToken: githubToken || '',
+        accessToken: githubToken || process.env.GITHUB_TOKEN || '',
         branch: 'main',
         ignoreFiles: ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lockb'],
         recursive: true,
@@ -63,7 +62,7 @@ export const loadGithubRepo = async (githubUrl: string, githubToken?: string) =>
 }
 
 export const indexGithubRepo = async (projectId: string, githubUrl: string, githubToken?: string) => {
-    const docs = await loadGithubRepo(githubUrl, githubToken)
+    const docs = await loadGithubRepo(githubUrl, githubToken || process.env.GITHUB_TOKEN)
     const allembeddings = await generateEmbeddings(docs)
     await Promise.allSettled(allembeddings.map( async (embedding, index) =>{
         console.log(`processing ${index} of ${allembeddings.length}`)

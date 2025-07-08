@@ -39,23 +39,18 @@ export const getCommitHashes = async (githubUrl: string): Promise<Response[]> =>
 export const pollCommits = async (projectId: string) => {
     const {project, githubUrl} = await fetchProjectGithubUrl(projectId)
     const commitHashes = await getCommitHashes(githubUrl)
-    console.log("commitHahessssssss: ",commitHashes)
     const unprocessedCommits = await filterUnprocessedCommits(projectId, commitHashes)
-    console.log(unprocessedCommits)
 
     const summaryResponses = await Promise.allSettled(unprocessedCommits.map(commit => {
         return summariesCommit(githubUrl, commit.commitHash)
     })) 
     const summarises = summaryResponses.map((response) => {
-    console.log("summaryResponses",response)
-
         if(response.status === 'fulfilled') {
             return response.value as string
         }
         return ""
         
     })
-    console.log("summariressssss",summarises)
     const commits = await db.commit.createMany({
         data: summarises.map((summary, index) => {
             console.log(`processing commit ${index}`)
@@ -81,6 +76,7 @@ async function summariesCommit(githubUrl: string, commitHash: string) {
     const {data} = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
         headers:{
             Accept: 'application/vnd.github.v3.diff',
+            Authorization: `token ${process.env.GITHUB_TOKEN}`
         }
     })
     return await aiSummariseCommit(data) 

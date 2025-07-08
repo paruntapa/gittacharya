@@ -85,10 +85,12 @@ export const AppSidebar = ( ) => {
                                         <div onClick={()=>{
                                             setProjectId(project.id)
                                         }}>
-                                            <div className={`px-2  ${project.id === projectId && 'bg-primary text-white'} rounded-sm border size-6 flex items-center justify-center text-sm text-primary`}>
+                                            <div className={`px-2  ${project.id === projectId && 'bg-primary text-white'} cursor-pointer rounded-sm border size-6 flex items-center justify-center text-sm text-primary`}>
                                                 {project.name[0]?.toUpperCase()}
                                             </div>
-                                            <span>{project.name}</span>
+                                            <span className="cursor-pointer" onClick={()=>{
+                                                router.push("/dashboard")
+                                            }}>{project.name}</span>
                                         </div>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>

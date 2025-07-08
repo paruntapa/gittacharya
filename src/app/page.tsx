@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
-export default async function Home() {
+import { redirect } from "next/navigation";
 
+export default async function Home() {
   return (
-      <Button>Click me</Button>
+      <Button onClick={
+        redirect('/create')
+      }>Go to Create Page</Button>
   );
 }

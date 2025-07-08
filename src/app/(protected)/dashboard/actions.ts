@@ -5,6 +5,7 @@ import { createStreamableValue } from 'ai/rsc'
 import { createGoogleGenerativeAI } from  '@ai-sdk/google'
 import { generateEmbedding } from '@/lib/gemini'
 import { db } from '@/server/db'
+import { checkDomainOfScale } from 'recharts/types/util/ChartUtils'
 
 const google = createGoogleGenerativeAI({
     apiKey: process.env.GEMINI_API_KEY,
@@ -20,8 +21,7 @@ export async function askQuestion(question: string, projectId: string) {
     SELECT "fileName", "sourceCode", "summary",
     1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) AS similarity
     FROM "SourceCodeEmbedding"
-    WHERE 1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) > 0.5
-    AND "projectId" = ${projectId}
+    WHERE "projectId" = ${projectId}
     ORDER BY similarity DESC
     LIMIT 10
     ` as { fileName: string; sourceCode: string; summary: string }[]
@@ -33,8 +33,8 @@ export async function askQuestion(question: string, projectId: string) {
     console.log(context)
 
     }
-
     (async ()=> {
+        console.log("context", context)
         const { textStream } = await streamText({
             model: google('gemini-1.5-flash'),
             prompt: `
