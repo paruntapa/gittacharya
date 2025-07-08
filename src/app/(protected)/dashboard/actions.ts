@@ -5,7 +5,6 @@ import { createStreamableValue } from 'ai/rsc'
 import { createGoogleGenerativeAI } from  '@ai-sdk/google'
 import { generateEmbedding } from '@/lib/gemini'
 import { db } from '@/server/db'
-import { checkDomainOfScale } from 'recharts/types/util/ChartUtils'
 
 const google = createGoogleGenerativeAI({
     apiKey: process.env.GEMINI_API_KEY,
